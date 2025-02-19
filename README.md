@@ -1,8 +1,8 @@
 # Can I charge?
 
 It's a question you might have asked yourself before if you have a BEV/PHEV.
-This utility allows you to check if your favorite charging stations is available
-for your car to charge, right from the warmth of your terminal. No need to go
+This utility allows you to check if your favorite charging stations are available
+for your car to charge, right from the warmth of your terminal! No need to go
 outside and physically check if the charging station is available, and possibly
 return disappointed because it was occupied.
 
