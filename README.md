@@ -9,7 +9,7 @@ return disappointed because it was occupied.
 ## How to install
 
 ```bash
-pip install -e .
+pip install can-i-charge
 ```
 
 ## How to use
