@@ -1,0 +1,51 @@
+# pyproject.toml
+
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "can-i-charge"
+version = "0.1.0"
+description = "A CLI to fetch the status of charging stations"
+readme = "README.md"
+authors = [{ name = "Bram Oosterlynck", email = "bram.oosterlynck@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "aiohappyeyeballs>=2.4.6",
+  "aiohttp>=3.11.12",
+  "aiohttp-retry>=2.9.1",
+  "aiosignal>=1.3.2",
+  "annotated-types>=0.7.0",
+  "attrs>=25.1.0",
+  "beautifulsoup4>=4.13.3",
+  "bs4>=0.0.2",
+  "click>=8.1.8",
+  "frozenlist>=1.5.0",
+  "idna>=3.10",
+  "multidict>=6.1.0",
+  "propcache>=0.2.1",
+  "pydantic>=2.10.6",
+  "pydantic_core>=2.27.2",
+  "shellrecharge>=0.1.18",
+  "soupsieve>=2.6",
+  "typing_extensions>=4.12.2",
+  "yarl>=1.18.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/boosterl/can-i-charge"
+
+[project.scripts]
+can-i-charge = "can_i_charge.__main__:main"
