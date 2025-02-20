@@ -19,7 +19,7 @@ async def get_charging_status(location_ids):
         for location_id in location_ids:
             try:
                 location = await api.location_by_id(location_id)
-                click.echo(f"Status for station {location.address.streetAndNumber}")
+                click.echo(f"Status for station {location.address.streetAndNumber}, {location.address.postalCode} {location.address.city}")
                 for evses in location.evses:
                     status_icon = status_icon_map.get(evses.status.lower(), "❓")
                     click.echo(
