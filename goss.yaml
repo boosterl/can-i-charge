@@ -1,0 +1,7 @@
+user:
+  can-i-charge:
+    exists: true
+
+command:
+  can-i-charge --help:
+    exit-status: 0
