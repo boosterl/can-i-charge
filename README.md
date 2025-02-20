@@ -32,6 +32,30 @@ on the charging station or on websites like [shellrecharge](https://www.shell.co
 
 ![GIF of an example session interacting with the cli](demo.gif)
 
+## Container
+
+### build
+```
+$ docker build -t boosterl/can-i-charge:dev .
+```
+
+### run
+```
+$ docker run --rm -e STATIONS='BE-TCB-P104146' boosterl/can-i-charge:dev
+```
+
+### [dgoss](https://github.com/goss-org/goss/blob/master/extras/dgoss/README.md)
+```
+$ dgoss run boosterl/can-i-charge:dev
+ INFO: Starting docker container
+ INFO: Container ID: 97851a83
+ INFO: Sleeping for 0.2
+ INFO: Container health
+ INFO: Running Tests
+ User: can-i-charge: exists: matches expectation: true
+ INFO: Deleting container
+```
+
 ## Acknowledgments
 
 This library uses the excellent [python-shellrecharge](https://github.com/cyberjunky/python-shellrecharge) package.
