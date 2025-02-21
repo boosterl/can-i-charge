@@ -9,7 +9,7 @@ return disappointed because it was occupied.
 ## How to install
 
 ```bash
-pip install can-i-charge
+$ pip install can-i-charge
 ```
 
 ## How to use
@@ -18,10 +18,10 @@ The CLI can be used in the following ways:
 
 ```bash
 # Using arguments
-can-i-charge --station <SERIAL1> --station <SERIAL2> --station <SERIAL3>
+$ can-i-charge --station <SERIAL1> --station <SERIAL2> --station <SERIAL3>
 # Using env variables
-export STATIONS="<SERIAL1> <SERIAL2>"
-can-i-charge
+$ export STATIONS="<SERIAL1> <SERIAL2>"
+$ can-i-charge
 ```
 
 You can pass as many stations as you want. At least one valid is needed however
