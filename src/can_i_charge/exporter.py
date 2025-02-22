@@ -8,24 +8,24 @@ metrics = {
     "address": Gauge(
         "address",
         "Address information",
-        ["station_id", "street", "postal_code", "city", "country"],
+        ["station_id", "address", "street", "postal_code", "city", "country"],
     ),
     "connector_power": Gauge(
         "connector_power",
         "Connector max electric power",
-        ["station_id", "evse_id", "connector_id"],
+        ["station_id", "address", "evse_id", "connector_id"],
     ),
     "evse_status": Enum(
         "evse_status",
         "Status of evse",
-        ["station_id", "evse_id"],
+        ["station_id", "address", "evse_id"],
         states=["Available", "Unavailable", "Occupied", "Unknown"],
     ),
     "evse_updated": Gauge(
-        "evse_updated", "Evse last updated time", ["station_id", "evse_id"]
+        "evse_updated", "Evse last updated time", ["station_id", "address", "evse_id"]
     ),
     "operator_name": Gauge(
-        "operator_name", "Operator name", ["station_id", "operator_name"]
+        "operator_name", "Operator name", ["station_id", "address", "operator_name"]
     ),
     "station_exists": Gauge("station_exists", "Station Exists", ["station_id"]),
 }
@@ -39,27 +39,32 @@ def set_metrics(station, found):
     if not found:
         metrics["station_exists"].labels(station_id=station).set(0)
         return
+    address = f"{station.address.streetAndNumber}, {station.address.postalCode} {station.address.city}"
     metrics["address"].labels(
         station_id=station.externalId,
+        address=address,
         street=station.address.streetAndNumber,
         postal_code=station.address.postalCode,
         city=station.address.city,
         country=station.address.country,
     ).set(1)
     metrics["operator_name"].labels(
-        station_id=station.externalId, operator_name=station.operatorName
+        station_id=station.externalId,
+        address=address,
+        operator_name=station.operatorName,
     ).set(1)
     metrics["station_exists"].labels(station_id=station.externalId).set(1)
     for evse in station.evses:
         metrics["evse_status"].labels(
-            station_id=station.externalId, evse_id=evse.externalId
+            station_id=station.externalId, address=address, evse_id=evse.externalId
         ).state(evse.status)
         metrics["evse_updated"].labels(
-            station_id=station.externalId, evse_id=evse.externalId
+            station_id=station.externalId, address=address, evse_id=evse.externalId
         ).set(iso_to_epoch(evse.updated))
         for connector in evse.connectors:
             metrics["connector_power"].labels(
                 station_id=station.externalId,
+                address=address,
                 evse_id=evse.externalId,
                 connector_id=connector.externalId,
             ).set(connector.electricalProperties.maxElectricPower)
