@@ -1,5 +1,5 @@
 from asyncio import run
-from can_i_charge.charging_status import get_charging_status
+from can_i_charge.cli import get_charging_status
 from click import command, option
 
 

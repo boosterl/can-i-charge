@@ -10,12 +10,12 @@ status_icon_map = {
 }
 
 
-async def get_charging_status(location_ids):
+async def get_charging_status(stations):
     async with ClientSession() as session:
         api = Api(session)
-        for location_id in location_ids:
+        for station_id in stations:
             try:
-                location = await api.location_by_id(location_id)
+                location = await api.location_by_id(station_id)
                 echo(
                     f"📍 Station: {location.address.streetAndNumber}, {location.address.postalCode} {location.address.city}"
                 )
@@ -25,8 +25,8 @@ async def get_charging_status(location_ids):
                         f"    - Connector {evses.uid} is {evses.status.lower()} {status_icon}"
                     )
             except LocationEmptyError:
-                echo(f"No data returned for {location_id}, check location id")
+                echo(f"No data returned for {station_id}, check station id")
             except LocationValidationError as err:
-                echo(f"Location validation error {err}, report location id")
+                echo(f"Location validation error {err}, report station id")
             except (CancelledError, ClientError, TimeoutError) as err:
                 echo(err)
