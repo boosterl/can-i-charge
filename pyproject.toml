@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "can-i-charge"
-version = "0.2.2"
+version = "0.3.0"
 description = "A CLI to fetch the status of charging stations"
 readme = "README.md"
 authors = [{ name = "Bram Oosterlynck", email = "bram.oosterlynck@gmail.com" }]
@@ -35,6 +35,7 @@ dependencies = [
   "frozenlist>=1.5.0",
   "idna>=3.10",
   "multidict>=6.1.0",
+  "prometheus_client>=0.21.1",
   "propcache>=0.2.1",
   "pydantic>=2.10.6",
   "pydantic_core>=2.27.2",
