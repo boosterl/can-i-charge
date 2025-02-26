@@ -50,3 +50,4 @@ Homepage = "https://github.com/boosterl/can-i-charge"
 
 [project.scripts]
 can-i-charge = "can_i_charge.__main__:main"
+cic = "can_i_charge.__main__:main"
