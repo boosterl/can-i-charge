@@ -1,0 +1,12 @@
+---
+services:
+  can-i-charge:
+    image: boosterl/can-i-charge:dev
+    container_name: can-i-charge
+    environment:
+      - STATIONS=BE-TCB-P104146 BE-TCB-P104151 BEALLEGO005188
+      - EXPORTER=true
+      # - EXPORTER_PORT="9041"
+      # - EXPORTER_INTERVAL="120"
+    ports:
+      - 9041:9041
