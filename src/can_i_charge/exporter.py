@@ -1,5 +1,6 @@
 from aiohttp import ClientSession
 from datetime import datetime
+from logging import exception
 from prometheus_client import start_http_server, Enum, Gauge
 from shellrecharge import Api, LocationEmptyError, LocationValidationError
 from time import sleep
@@ -80,4 +81,8 @@ async def run_metrics_loop(stations, interval):
                     set_metrics(station, True)
                 except (LocationEmptyError, LocationValidationError):
                     set_metrics(station_id, False)
+                except (CancelledError, ClientError, TimeoutError) as err:
+                    logging(
+                        f"An exception occured while connecting with the API: {err}"
+                    )
             sleep(interval)
