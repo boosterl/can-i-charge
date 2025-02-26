@@ -7,28 +7,30 @@ from time import sleep
 
 metrics = {
     "address": Gauge(
-        "address",
+        "cic_address",
         "Address information",
         ["station_id", "address", "street", "postal_code", "city", "country"],
     ),
     "connector_power": Gauge(
-        "connector_power",
+        "cic_connector_power",
         "Connector max electric power",
         ["station_id", "address", "evse_id", "connector_id"],
     ),
     "evse_status": Enum(
-        "evse_status",
+        "cic_evse_status",
         "Status of evse",
         ["station_id", "address", "evse_id"],
         states=["Available", "Unavailable", "Occupied", "Unknown"],
     ),
     "evse_updated": Gauge(
-        "evse_updated", "Evse last updated time", ["station_id", "address", "evse_id"]
+        "cic_evse_updated",
+        "Evse last updated time",
+        ["station_id", "address", "evse_id"],
     ),
     "operator_name": Gauge(
-        "operator_name", "Operator name", ["station_id", "address", "operator_name"]
+        "cic_operator_name", "Operator name", ["station_id", "address", "operator_name"]
     ),
-    "station_exists": Gauge("station_exists", "Station Exists", ["station_id"]),
+    "station_exists": Gauge("cic_station_exists", "Station Exists", ["station_id"]),
 }
 
 
