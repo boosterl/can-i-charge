@@ -52,18 +52,25 @@ $ can-i-charge
 
 ## Container
 
-### build
-```
+### Build
+```bash
 $ docker build -t boosterl/can-i-charge:dev .
 ```
 
-### run
-```
+### Run
+```bash
+# Default
 $ docker run --rm -e STATIONS='BE-TCB-P104146' boosterl/can-i-charge:dev
+
+# Using exporter
+$ docker run --rm -e STATIONS='BE-TCB-P104146' -e EXPORTER='1' -p 9041:9041 boosterl/can-i-charge:dev
+
+# Using docker-compose
+$ docker-compose up -d
 ```
 
 ### [dgoss](https://github.com/goss-org/goss/blob/master/extras/dgoss/README.md)
-```
+```bash
 $ dgoss run boosterl/can-i-charge:dev
  INFO: Starting docker container
  INFO: Container ID: 97851a83
