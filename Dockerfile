@@ -1,4 +1,5 @@
-FROM python:3.13.2-alpine3.21
+ARG IMAGETAG=python:3.13.2-alpine3.21
+FROM ${IMAGETAG}
 
 WORKDIR /tmp/can-i-charge
 
