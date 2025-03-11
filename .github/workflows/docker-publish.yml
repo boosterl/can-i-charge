@@ -70,4 +70,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/riscv64
           build-args: |
-            IMAGETAG=3.10.16-alpine3.21
+            IMAGETAG=python:3.10.16-alpine3.21
