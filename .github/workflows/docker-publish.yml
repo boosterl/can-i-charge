@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
   schedule:
     # Build the image daily
     - cron: '0 3 * * *'
@@ -12,7 +14,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/can-i-charge
-  TAG: latest
+  TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || 'latest' }}
 
 jobs:
   build:
