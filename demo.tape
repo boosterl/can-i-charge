@@ -11,10 +11,10 @@ Sleep 5s
 Type "clear"
 Enter
 
-Type 'export STATIONS="BE-TCB-P104159 BE-TCB-P104151 BEALLEGO005188"'
+Type 'export STATIONS="BE-TCB-P104159 BEALLEGO000337"'
 Sleep 500ms
 Enter
-Type "can-i-charge"
+Type "cic -vv"
 Sleep 500ms
 Enter
 Sleep 5s

@@ -24,6 +24,8 @@ $ can-i-charge --station <SERIAL1> --station <SERIAL2> --station <SERIAL3>
 # Using env variables
 $ export STATIONS="<SERIAL1> <SERIAL2>"
 $ can-i-charge
+# The script can also be called using it's abbreviation
+$ cic
 ```
 
 You can pass as many stations as you want. At least one valid is needed however
