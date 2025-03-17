@@ -10,13 +10,14 @@ from prometheus_client import start_http_server
 @option("-i", "--interval", envvar="EXPORTER_INTERVAL", type=int)
 @option("-p", "--port", envvar="EXPORTER_PORT", type=int)
 @option("-s", "--station", envvar="STATIONS", multiple=True)
-def main(exporter, interval, port, station):
+@option("-v", "--verbose", count=True)
+def main(exporter, interval, port, station, verbose):
     if exporter:
         start_http_server(port if port else 9041)
         metrics_loop = run_metrics_loop(station, interval if interval else 60)
         get_event_loop().run_until_complete(metrics_loop)
     else:
-        run(get_charging_status(station))
+        run(get_charging_status(station, verbose))
 
 
 if __name__ == "__main__":
