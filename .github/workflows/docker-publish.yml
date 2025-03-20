@@ -1,61 +1,64 @@
-name: Build latest
+name: Docker
 
+# This workflow can be triggered by two events: a published release or a 
+# manual dispatch. When triggered by a release, it pushes a Docker image 
+#tagged with both 'latest' and the release version. If triggered manually, 
+# the Docker image is tagged with the branch name (e.g., main, dev etc).
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
   release:
     types: [published]
-  schedule:
-    # Build the image daily
-    - cron: '0 3 * * *'
+  workflow_dispatch:
 
+
+# --------------------------------------------------------------
+# Variables
+# --------------------------------------------------------------
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/can-i-charge
-  TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || 'latest' }}
+  PLATFORMS: linux/amd64,linux/arm64
 
+
+# --------------------------------------------------------------
+# Jobs
+# --------------------------------------------------------------
 jobs:
-  build:
-    name: Build & push new image
+  docker:
+    name: Docker build and push
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: ${{ env.PLATFORMS }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64, linux/arm64
 
-      - name: Login to registry
-        if: github.event_name != 'pull_request'
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set Docker metadata
+      - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            ${{ env.TAG }}
+          images: ghcr.io/${{ github.repository }}
 
-      - name: Build and push Docker image for amd64 and arm64
-        id: build-and-push
+      - name: Build and push image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64, linux/arm64
+          platforms: ${{ env.PLATFORMS }}
+          # Prevents the unknown/unknown arch
+          # see https://github.com/docker/build-push-action/issues/820
+          provenance: false
