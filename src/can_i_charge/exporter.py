@@ -70,7 +70,7 @@ def set_metrics(station, found):
                 address=address,
                 evse_id=evse.externalId,
                 connector_id=connector.externalId,
-            ).set(connector.electricalProperties.maxElectricPower)
+            ).set(connector.electricalProperties.maxElectricPower * 1000)
 
 
 async def run_metrics_loop(stations, interval):
