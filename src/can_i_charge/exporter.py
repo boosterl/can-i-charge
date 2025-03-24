@@ -1,4 +1,6 @@
 from aiohttp import ClientSession
+from aiohttp.client_exceptions import ClientError
+from asyncio import CancelledError
 from datetime import datetime
 from logging import exception
 from prometheus_client import start_http_server, Enum, Gauge
