@@ -7,16 +7,17 @@ from prometheus_client import start_http_server, Enum, Gauge
 from shellrecharge import Api, LocationEmptyError, LocationValidationError
 from time import sleep
 
+connector_properties = {
+    "connector_amperage": "amperage",
+    "connector_power": "maxElectricPower",
+    "connector_voltage": "voltage",
+}
+
 metrics = {
     "address": Gauge(
         "cic_address",
         "Address information",
         ["station_id", "address", "street", "postal_code", "city", "country"],
-    ),
-    "connector_power": Gauge(
-        "cic_connector_power",
-        "Connector max electric power",
-        ["station_id", "address", "evse_id", "connector_id"],
     ),
     "evse_status": Enum(
         "cic_evse_status",
@@ -34,6 +35,13 @@ metrics = {
     ),
     "station_exists": Gauge("cic_station_exists", "Station Exists", ["station_id"]),
 }
+
+for connector_property in connector_properties:
+    metrics[connector_property] = Gauge(
+        f"cic_{connector_property}",
+        connector_property.replace("_", " ").capitalize(),
+        ["station_id", "address", "evse_id", "connector_id"],
+    )
 
 
 def iso_to_epoch(iso_string):
@@ -67,12 +75,16 @@ def set_metrics(station, found):
             station_id=station.externalId, address=address, evse_id=evse.externalId
         ).set(iso_to_epoch(evse.updated))
         for connector in evse.connectors:
-            metrics["connector_power"].labels(
-                station_id=station.externalId,
-                address=address,
-                evse_id=evse.externalId,
-                connector_id=connector.externalId,
-            ).set(connector.electricalProperties.maxElectricPower * 1000)
+            for connector_property, attr_name in connector_properties.items():
+                value = getattr(connector.electricalProperties, attr_name)
+                if connector_property == "connector_power":
+                    value *= 1000
+                metrics[connector_property].labels(
+                    station_id=station.externalId,
+                    address=address,
+                    evse_id=evse.externalId,
+                    connector_id=connector.externalId,
+                ).set(value)
 
 
 async def run_metrics_loop(stations, interval):
