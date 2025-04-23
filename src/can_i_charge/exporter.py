@@ -94,6 +94,9 @@ async def run_metrics_loop(stations, interval):
             for station_id in stations:
                 try:
                     station = await api.location_by_id(station_id)
+                    if not station:
+                        logging(f"Error connecting with API")
+                        continue
                     set_metrics(station, True)
                 except (LocationEmptyError, LocationValidationError):
                     set_metrics(station_id, False)

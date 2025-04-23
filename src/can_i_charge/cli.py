@@ -16,6 +16,9 @@ async def get_charging_status(stations, verbose):
         for station_id in stations:
             try:
                 location = await api.location_by_id(station_id)
+                if not location:
+                    echo(f"Error connecting with API")
+                    continue
                 echo(
                     f"📍 Station: {location.address.streetAndNumber}, {location.address.postalCode} {location.address.city}"
                 )
