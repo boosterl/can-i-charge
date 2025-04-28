@@ -76,6 +76,9 @@ jobs:
 
       - name: Create manifest list and push
         run: |
-          docker buildx imagetools create -t ${{ steps.meta.outputs.tags }} \
-            ghcr.io/${{ github.repository }}:riscv64-${{ github.sha }} \
-            ghcr.io/${{ github.repository }}:other-${{ github.sha }}
+          tags="${{ steps.meta.outputs.tags }}"
+          for tag in ${tags}; do
+            docker buildx imagetools create -t ${tag} \
+              ghcr.io/${{ github.repository }}:riscv64-${{ github.sha }} \
+              ghcr.io/${{ github.repository }}:other-${{ github.sha }}
+          done
