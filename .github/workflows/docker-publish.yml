@@ -35,7 +35,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: ${{ env.PLATFORMS }}
+          platforms: ${{ env.PLATFORMS }},${{ env.RISCV64_PLATFORM }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
