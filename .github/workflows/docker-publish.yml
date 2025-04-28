@@ -53,15 +53,15 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
 
-      # - name: Build and push image for riscv64
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     file: ./Containerfile.riscv64
-      #     push: true
-      #     tags: ghcr.io/${{ github.repository }}:riscv64-${{ github.sha }}
-      #     labels: ${{ steps.meta.outputs.labels }}
-      #     platforms: ${{ env.RISCV64_PLATFORM }}
-      #     provenance: false
+      - name: Build and push image for riscv64
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Containerfile.riscv64
+          push: true
+          tags: ghcr.io/${{ github.repository }}:riscv64-${{ github.sha }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: ${{ env.RISCV64_PLATFORM }}
+          provenance: false
 
       - name: Build and push image for other platforms
         uses: docker/build-push-action@v6
@@ -77,4 +77,5 @@ jobs:
       - name: Create manifest list and push
         run: |
           docker buildx imagetools create -t ${{ steps.meta.outputs.tags }} \
+            ghcr.io/${{ github.repository }}:riscv64-${{ github.sha }} \
             ghcr.io/${{ github.repository }}:other-${{ github.sha }}
