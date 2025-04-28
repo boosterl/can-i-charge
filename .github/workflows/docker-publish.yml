@@ -15,6 +15,7 @@ on:
 # --------------------------------------------------------------
 env:
   PLATFORMS: linux/amd64,linux/arm64
+  RISCV64_PLATFORM: linux/riscv64
 
 
 # --------------------------------------------------------------
@@ -52,9 +53,19 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
 
-      - name: Build and push image
+      - name: Build and push image for riscv64
         uses: docker/build-push-action@v6
         with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: ${{ env.RISCV64_PLATFORM }}
+          provenance: false
+
+      - name: Build and push image for other platforms
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Containerfile.riscv64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

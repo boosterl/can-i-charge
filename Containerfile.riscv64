@@ -1,0 +1,27 @@
+FROM debian:trixie AS builder
+
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    python3-pip \
+    python3-venv
+
+WORKDIR /app
+
+RUN python3 -m venv /app/venv
+RUN /app/venv/bin/pip install --upgrade pip
+RUN /app/venv/bin/pip install can-i-charge --index-url https://gitlab.com/api/v4/projects/56254198/packages/pypi/simple
+
+FROM debian:trixie
+
+RUN apt-get update && \
+    apt-get install -y \
+    python3-venv
+
+WORKDIR /app
+
+COPY --from=builder /app /app
+
+ENV PATH="/app/venv/bin:$PATH"
+
+CMD ["can-i-charge"]
