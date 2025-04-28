@@ -58,7 +58,7 @@ jobs:
         with:
           file: ./Containerfile.riscv64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/${{ github.repository }}:riscv64-${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ env.RISCV64_PLATFORM }}
           provenance: false
@@ -67,9 +67,15 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/${{ github.repository }}:other-${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ env.PLATFORMS }}
           # Prevents the unknown/unknown arch
           # see https://github.com/docker/build-push-action/issues/820
           provenance: false
+
+      - name: Create manifest list and push
+        run: |
+          docker buildx imagetools create -t ${{ steps.meta.outputs.tags }} \
+            ghcr.io/${{ github.repository }}:riscv64-${{ github.sha }} \
+            ghcr.io/${{ github.repository }}:other-${{ github.sha }}
