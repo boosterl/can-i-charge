@@ -25,6 +25,9 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
+RUN useradd --system can-i-charge
+USER can-i-charge
+
 ENV PATH="/app/venv/bin:$PATH"
 
 CMD ["can-i-charge"]
