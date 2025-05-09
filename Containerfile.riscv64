@@ -8,9 +8,12 @@ RUN apt-get update && \
 
 WORKDIR /app
 
+COPY pyproject.toml pyproject.toml
+COPY src src
+
 RUN python3 -m venv /app/venv
 RUN /app/venv/bin/pip install --upgrade pip
-RUN /app/venv/bin/pip install can-i-charge --index-url https://gitlab.com/api/v4/projects/56254198/packages/pypi/simple
+RUN /app/venv/bin/pip install . --index-url https://gitlab.com/api/v4/projects/56254198/packages/pypi/simple
 
 FROM debian:trixie
 
