@@ -8,8 +8,18 @@ return disappointed because it was occupied.
 
 ## How to install
 
+### Using pip
+
 ```bash
 $ pip install can-i-charge
+```
+
+### AUR
+
+A PKGBUILD has been created for this package, available on the [AUR](https://aur.archlinux.org/packages/python-can-i-charge).
+
+```bash
+paru -S python-can-i-charge
 ```
 
 ## How to use
