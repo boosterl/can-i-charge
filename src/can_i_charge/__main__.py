@@ -1,7 +1,7 @@
 from asyncio import get_event_loop, run
 from can_i_charge.cli import get_charging_status
 from can_i_charge.exporter import run_metrics_loop
-from click import command, option
+from click import command, option, version_option
 from prometheus_client import start_http_server
 
 
@@ -11,6 +11,7 @@ from prometheus_client import start_http_server
 @option("-p", "--port", envvar="EXPORTER_PORT", type=int)
 @option("-s", "--station", envvar="STATIONS", multiple=True)
 @option("-v", "--verbose", count=True)
+@version_option()
 def main(exporter, interval, port, station, verbose):
     if exporter:
         start_http_server(port if port else 9041)
