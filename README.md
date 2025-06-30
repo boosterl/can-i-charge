@@ -40,7 +40,7 @@ $ cic
 
 You can pass as many stations as you want. At least one valid is needed however
 to actually return some data. The serials for the charging stations can be found
-on the charging station or on websites like [shellrecharge](https://www.shell.co.uk/electric-vehicle-charging/find-an-ev-charge-point.html).
+on the charging station or on websites like [shellrecharge](https://ui-map.shellrecharge.com/).
 
 ### Prometheus Exporter
 
