@@ -30,11 +30,11 @@ async def get_charging_status(stations, verbose):
                     for connector in evse.connectors:
                         print_connector_details(connector, verbose)
             except LocationEmptyError:
-                echo(f"No data returned for {station_id}, check station id")
+                echo(f"No data returned for {station_id}, check station id", err=True)
             except LocationValidationError as err:
-                echo(f"Location validation error {err}, report station id")
+                echo(f"Location validation error {err}, report station id", err=True)
             except (CancelledError, ClientError, TimeoutError) as err:
-                echo(err)
+                echo(err, err=True)
 
 
 def print_connector_details(connector, verbose):
