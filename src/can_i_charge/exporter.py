@@ -1,8 +1,9 @@
+import logging
+
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientError
 from asyncio import CancelledError
 from datetime import datetime
-from logging import exception
 from prometheus_client import start_http_server, Enum, Gauge
 from shellrecharge import Api, LocationEmptyError, LocationValidationError
 from time import sleep
@@ -35,6 +36,8 @@ metrics = {
     ),
     "station_exists": Gauge("cic_station_exists", "Station Exists", ["station_id"]),
 }
+
+logger = logging.getLogger(__name__)
 
 for connector_property in connector_properties:
     metrics[connector_property] = Gauge(
@@ -95,13 +98,13 @@ async def run_metrics_loop(stations, interval):
                 try:
                     station = await api.location_by_id(station_id)
                     if not station:
-                        logging(f"Error connecting with API")
+                        logger.error(f"Error connecting with API")
                         continue
                     set_metrics(station, True)
                 except (LocationEmptyError, LocationValidationError):
                     set_metrics(station_id, False)
                 except (CancelledError, ClientError, TimeoutError) as err:
-                    logging(
+                    logger.error(
                         f"An exception occured while connecting with the API: {err}"
                     )
             sleep(interval)
