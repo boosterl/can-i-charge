@@ -8,6 +8,11 @@ from prometheus_client import start_http_server, Enum, Gauge
 from shellrecharge import Api, LocationEmptyError, LocationValidationError
 from time import sleep
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s'
+)
+
 connector_properties = {
     "connector_amperage": "amperage",
     "connector_power": "maxElectricPower",
@@ -98,7 +103,7 @@ async def run_metrics_loop(stations, interval):
                 try:
                     station = await api.location_by_id(station_id)
                     if not station:
-                        logger.error(f"Error connecting with API")
+                        logger.error("Error connecting with API")
                         continue
                     set_metrics(station, True)
                 except (LocationEmptyError, LocationValidationError):
