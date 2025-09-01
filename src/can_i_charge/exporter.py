@@ -5,6 +5,7 @@ from aiohttp.client_exceptions import ClientError
 from asyncio import CancelledError
 from datetime import datetime
 from prometheus_client import start_http_server, Enum, Gauge
+from random import randrange
 from shellrecharge import Api, LocationEmptyError, LocationValidationError
 from time import sleep
 
@@ -104,6 +105,9 @@ async def run_metrics_loop(stations, interval):
                     station = await api.location_by_id(station_id)
                     if not station:
                         logger.error("Error connecting with API")
+                        cooldown_period = randrange(30,60)
+                        logger.info(f"Cooling down communication with API for {cooldown_period}s")
+                        sleep(cooldown_period)
                         continue
                     set_metrics(station, True)
                 except (LocationEmptyError, LocationValidationError):
