@@ -28,7 +28,9 @@ async def get_charging_status(stations, verbose):
                         f"    - Connector {evse.uid} is {evse.status.lower()} {status_icon}"
                     )
                     for connector in evse.connectors:
-                        print_connector_details(connector, verbose)
+                        print_connector_details(
+                            connector, location.coordinates, verbose
+                        )
             except LocationEmptyError:
                 echo(f"No data returned for {station_id}, check station id", err=True)
             except LocationValidationError as err:
@@ -37,7 +39,7 @@ async def get_charging_status(stations, verbose):
                 echo(err, err=True)
 
 
-def print_connector_details(connector, verbose):
+def print_connector_details(connector, coordinates, verbose):
     if verbose < 1:
         return
     echo(f"      Connector type: {connector.connectorType}")
@@ -47,3 +49,5 @@ def print_connector_details(connector, verbose):
     echo(f"      Power type: {connector.electricalProperties.powerType}")
     echo(f"      Voltage: {connector.electricalProperties.voltage}V")
     echo(f"      Amperage: {connector.electricalProperties.amperage}A")
+    echo(f"      Latitude: {coordinates.latitude}")
+    echo(f"      Longitude: {coordinates.longitude}")

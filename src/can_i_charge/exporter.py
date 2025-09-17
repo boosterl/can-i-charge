@@ -9,10 +9,7 @@ from random import randrange
 from shellrecharge import Api, LocationEmptyError, LocationValidationError
 from time import sleep
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)s %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 connector_properties = {
     "connector_amperage": "amperage",
@@ -24,21 +21,32 @@ metrics = {
     "address": Gauge(
         "cic_address",
         "Address information",
-        ["station_id", "address", "street", "postal_code", "city", "country"],
+        [
+            "station_id",
+            "address",
+            "latitude",
+            "longitude",
+            "street",
+            "postal_code",
+            "city",
+            "country",
+        ],
     ),
     "evse_status": Enum(
         "cic_evse_status",
         "Status of evse",
-        ["station_id", "address", "evse_id"],
+        ["station_id", "address", "latitude", "longitude", "evse_id"],
         states=["Available", "Unavailable", "Occupied", "Unknown"],
     ),
     "evse_updated": Gauge(
         "cic_evse_updated",
         "Evse last updated time",
-        ["station_id", "address", "evse_id"],
+        ["station_id", "address", "latitude", "longitude", "evse_id"],
     ),
     "operator_name": Gauge(
-        "cic_operator_name", "Operator name", ["station_id", "address", "operator_name"]
+        "cic_operator_name",
+        "Operator name",
+        ["station_id", "address", "latitude", "longitude", "operator_name"],
     ),
     "station_exists": Gauge("cic_station_exists", "Station Exists", ["station_id"]),
 }
@@ -49,7 +57,7 @@ for connector_property in connector_properties:
     metrics[connector_property] = Gauge(
         f"cic_{connector_property}",
         connector_property.replace("_", " ").capitalize(),
-        ["station_id", "address", "evse_id", "connector_id"],
+        ["station_id", "address", "latitude", "longitude", "evse_id", "connector_id"],
     )
 
 
@@ -65,6 +73,8 @@ def set_metrics(station, found):
     metrics["address"].labels(
         station_id=station.externalId,
         address=address,
+        latitude=station.coordinates.latitude,
+        longitude=station.coordinates.longitude,
         street=station.address.streetAndNumber,
         postal_code=station.address.postalCode,
         city=station.address.city,
@@ -73,15 +83,25 @@ def set_metrics(station, found):
     metrics["operator_name"].labels(
         station_id=station.externalId,
         address=address,
+        latitude=station.coordinates.latitude,
+        longitude=station.coordinates.longitude,
         operator_name=station.operatorName,
     ).set(1)
     metrics["station_exists"].labels(station_id=station.externalId).set(1)
     for evse in station.evses:
         metrics["evse_status"].labels(
-            station_id=station.externalId, address=address, evse_id=evse.externalId
+            station_id=station.externalId,
+            address=address,
+            latitude=station.coordinates.latitude,
+            longitude=station.coordinates.longitude,
+            evse_id=evse.externalId,
         ).state(evse.status)
         metrics["evse_updated"].labels(
-            station_id=station.externalId, address=address, evse_id=evse.externalId
+            station_id=station.externalId,
+            address=address,
+            latitude=station.coordinates.latitude,
+            longitude=station.coordinates.longitude,
+            evse_id=evse.externalId,
         ).set(iso_to_epoch(evse.updated))
         for connector in evse.connectors:
             for connector_property, attr_name in connector_properties.items():
@@ -91,6 +111,8 @@ def set_metrics(station, found):
                 metrics[connector_property].labels(
                     station_id=station.externalId,
                     address=address,
+                    latitude=station.coordinates.latitude,
+                    longitude=station.coordinates.longitude,
                     evse_id=evse.externalId,
                     connector_id=connector.externalId,
                 ).set(value)
@@ -105,8 +127,10 @@ async def run_metrics_loop(stations, interval):
                     station = await api.location_by_id(station_id)
                     if not station:
                         logger.error("Error connecting with API")
-                        cooldown_period = randrange(30,60)
-                        logger.info(f"Cooling down communication with API for {cooldown_period}s")
+                        cooldown_period = randrange(30, 60)
+                        logger.info(
+                            f"Cooling down communication with API for {cooldown_period}s"
+                        )
                         sleep(cooldown_period)
                         continue
                     set_metrics(station, True)
