@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "can-i-charge"
-version = "0.6.11"
+version = "0.6.12"
 description = "A CLI to fetch the status of charging stations"
 readme = "README.md"
 authors = [{ name = "Bram Oosterlynck", email = "bram.oosterlynck@gmail.com" }]
@@ -23,9 +23,9 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-  "click>=8.3.0",
+  "click>=8.3.1",
   "prometheus_client>=0.23.1",
-  "shellrecharge>=0.1.22",
+  "shellrecharge>=0.1.26",
 ]
 
 [project.optional-dependencies]
