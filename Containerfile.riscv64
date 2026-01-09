@@ -13,7 +13,12 @@ COPY src src
 
 RUN python3 -m venv /app/venv
 RUN /app/venv/bin/pip install --upgrade pip
-RUN /app/venv/bin/pip install . --index-url https://gitlab.com/api/v4/projects/56254198/packages/pypi/simple
+RUN /app/venv/bin/pip install uv==0.9.22
+
+ENV VIRTUAL_ENV=/app/venv
+RUN /app/venv/bin/uv pip install . \
+  --extra-index-url https://gitlab.com/api/v4/projects/56254198/packages/pypi/simple \
+  --index-strategy unsafe-best-match
 
 FROM ubuntu:noble
 
