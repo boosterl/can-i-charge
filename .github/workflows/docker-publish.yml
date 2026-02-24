@@ -1,13 +1,9 @@
 name: Docker
 
-# This workflow can be triggered by two events: a published release or a 
-# manual dispatch. When triggered by a release, it pushes a Docker image 
-#tagged with both 'latest' and the release version. If triggered manually, 
-# the Docker image is tagged with the branch name (e.g., main, dev etc).
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
+  push:
+    tags:
+      - '*'
 
 
 # --------------------------------------------------------------
