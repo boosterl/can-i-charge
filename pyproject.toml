@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
   "click>=8.3.1",
-  "prometheus_client>=0.23.1",
+  "prometheus_client>=0.24.1",
   "shellrecharge>=0.1.26",
 ]
 
