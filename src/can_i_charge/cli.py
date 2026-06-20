@@ -2,7 +2,7 @@ from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientError
 from asyncio import CancelledError
 from click import echo
-from shellrecharge import Api, LocationEmptyError, LocationValidationError
+from can_i_charge.api import get_station, StationNotFoundError
 
 status_icon_map = {
     "occupied": "🚫",
@@ -10,44 +10,34 @@ status_icon_map = {
 }
 
 
-async def get_charging_status(stations, verbose):
+async def get_charging_status(stations, api_key, verbose):
     async with ClientSession() as session:
-        api = Api(session)
         for station_id in stations:
             try:
-                location = await api.location_by_id(station_id)
-                if not location:
-                    echo(f"Error connecting with API")
-                    continue
-                echo(
-                    f"📍 Station: {location.address.streetAndNumber}, {location.address.postalCode} {location.address.city}"
-                )
-                for evse in location.evses:
-                    status_icon = status_icon_map.get(evse.status.lower(), "❓")
+                station = await get_station(session, api_key, station_id)
+                echo(f"📍 Station: {station['shortAddress']}")
+                for charge_point in station["chargePoints"]:
+                    status = charge_point["status"].lower()
+                    status_icon = status_icon_map.get(status, "❓")
                     echo(
-                        f"    - Connector {evse.uid} is {evse.status.lower()} {status_icon}"
+                        f"    - Connector {charge_point['evseId']} is {status} {status_icon}"
                     )
-                    for connector in evse.connectors:
-                        print_connector_details(
-                            connector, location.coordinates, verbose
-                        )
-            except LocationEmptyError:
-                echo(f"No data returned for {station_id}, check station id", err=True)
-            except LocationValidationError as err:
-                echo(f"Location validation error {err}, report station id", err=True)
+                    for connector in charge_point["connectors"]:
+                        print_connector_details(connector, station, verbose)
+            except StationNotFoundError:
+                echo(
+                    f"No data returned for {station_id}, check station id", err=True
+                )
             except (CancelledError, ClientError, TimeoutError) as err:
                 echo(err, err=True)
 
 
-def print_connector_details(connector, coordinates, verbose):
+def print_connector_details(connector, station, verbose):
     if verbose < 1:
         return
-    echo(f"      Connector type: {connector.connectorType}")
-    echo(f"      Max power: {connector.electricalProperties.maxElectricPower}kW")
+    echo(f"      Connector type: {connector['plugTypeName']}")
+    echo(f"      Max power: {connector['maxPowerInKw']}kW")
     if verbose < 2:
         return
-    echo(f"      Power type: {connector.electricalProperties.powerType}")
-    echo(f"      Voltage: {connector.electricalProperties.voltage}V")
-    echo(f"      Amperage: {connector.electricalProperties.amperage}A")
-    echo(f"      Latitude: {coordinates.latitude}")
-    echo(f"      Longitude: {coordinates.longitude}")
+    echo(f"      Latitude: {station['lat']}")
+    echo(f"      Longitude: {station['lon']}")

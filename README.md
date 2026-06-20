@@ -24,23 +24,29 @@ paru -S python-can-i-charge
 
 ## How to use
 
+An API key for the EnBW eMobility public API is required. Set it via the
+`--api-key` flag or the `API_KEY` environment variable.
+
 ### CLI
 
 The CLI can be used in the following ways:
 
 ```bash
 # Using arguments
-$ can-i-charge --station <SERIAL1> --station <SERIAL2> --station <SERIAL3>
+$ can-i-charge --api-key <API_KEY> --station <ID1> --station <ID2>
 # Using env variables
-$ export STATIONS="<SERIAL1> <SERIAL2>"
+$ export API_KEY="<API_KEY>"
+$ export STATIONS="<ID1> <ID2>"
 $ can-i-charge
-# The script can also be called using it's abbreviation
+# The script can also be called using its abbreviation
 $ cic
 ```
 
-You can pass as many stations as you want. At least one valid is needed however
-to actually return some data. The serials for the charging stations can be found
-on the charging station or on websites like [shellrecharge](https://ui-map.shellrecharge.com/).
+You can pass as many stations as you want. At least one valid station is needed
+to return data. Station IDs are numeric and can be found via the
+[EnBW eMobility map](https://www.enbw.com/elektromobilitaet/produkte/laden/laden-unterwegs/ladestation-finden/).
+You can use the developer tools to find the ID and APIKEY, which is also
+needed.
 
 ### Prometheus Exporter
 
@@ -48,9 +54,10 @@ This utility can also be used as a Prometheus exporter:
 
 ```bash
 # Using arguments
-$ can-i-charge --station <SERIAL1> --station <SERIAL2> --station <SERIAL3> --exporter --port <default is 9041> --interval <default is 60 seconds>
+$ can-i-charge --api-key <API_KEY> --station <ID1> --station <ID2> --exporter --port <default is 9041> --interval <default is 60 seconds>
 # Using env variables
-$ export STATIONS="<SERIAL1> <SERIAL2>"
+$ export API_KEY="<API_KEY>"
+$ export STATIONS="<ID1> <ID2>"
 $ export EXPORTER=1
 # Optionally also overwrite default interval and port
 $ export EXPORTER_PORT=9000
@@ -72,10 +79,10 @@ $ docker build -t boosterl/can-i-charge:dev .
 ### Run
 ```bash
 # Default
-$ docker run --rm -e STATIONS='BE-TCB-P104146' boosterl/can-i-charge:dev
+$ docker run --rm -e API_KEY='<API_KEY>' -e STATIONS='471003' boosterl/can-i-charge:dev
 
 # Using exporter
-$ docker run --rm -e STATIONS='BE-TCB-P104146' -e EXPORTER='1' -p 9041:9041 boosterl/can-i-charge:dev
+$ docker run --rm -e API_KEY='<API_KEY>' -e STATIONS='471003' -e EXPORTER='1' -p 9041:9041 boosterl/can-i-charge:dev
 
 # Using docker-compose
 $ docker-compose up -d
@@ -95,4 +102,5 @@ $ dgoss run boosterl/can-i-charge:dev
 
 ## Acknowledgments
 
-This library uses the excellent [python-shellrecharge](https://github.com/cyberjunky/python-shellrecharge) package.
+This application uses the EnBW eMobility public API, and got inspired by the
+excellent work of the [EnBW Home Assistant integration](https://github.com/mKenfenheuer/enbw_chargestations).

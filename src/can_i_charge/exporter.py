@@ -3,34 +3,23 @@ import logging
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientError
 from asyncio import CancelledError
-from datetime import datetime
-from prometheus_client import start_http_server, Enum, Gauge
-from random import randrange
-from shellrecharge import Api, LocationEmptyError, LocationValidationError
+from prometheus_client import Enum, Gauge
+from can_i_charge.api import get_station, StationNotFoundError
 from time import sleep
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
-connector_properties = {
-    "connector_amperage": "amperage",
-    "connector_power": "maxElectricPower",
-    "connector_voltage": "voltage",
+evse_status_map = {
+    "AVAILABLE": "Available",
+    "OCCUPIED": "Occupied",
+    "OUT_OF_SERVICE": "Unavailable",
 }
 
 metrics = {
     "address": Gauge(
         "cic_address",
         "Address information",
-        [
-            "station_id",
-            "address",
-            "latitude",
-            "longitude",
-            "street",
-            "postal_code",
-            "city",
-            "country",
-        ],
+        ["station_id", "address", "latitude", "longitude"],
     ),
     "evse_status": Enum(
         "cic_evse_status",
@@ -49,92 +38,75 @@ metrics = {
         ["station_id", "address", "latitude", "longitude", "operator_name"],
     ),
     "station_exists": Gauge("cic_station_exists", "Station Exists", ["station_id"]),
+    "connector_power": Gauge(
+        "cic_connector_power",
+        "Connector power",
+        ["station_id", "address", "latitude", "longitude", "evse_id", "connector_id"],
+    ),
 }
 
 logger = logging.getLogger(__name__)
-
-for connector_property in connector_properties:
-    metrics[connector_property] = Gauge(
-        f"cic_{connector_property}",
-        connector_property.replace("_", " ").capitalize(),
-        ["station_id", "address", "latitude", "longitude", "evse_id", "connector_id"],
-    )
-
-
-def iso_to_epoch(iso_string):
-    return datetime.fromisoformat(iso_string.replace("Z", "+00:00")).timestamp()
 
 
 def set_metrics(station, found):
     if not found:
         metrics["station_exists"].labels(station_id=station).set(0)
         return
-    address = f"{station.address.streetAndNumber}, {station.address.postalCode} {station.address.city}"
+    station_id = str(station["stationId"])
+    address = station["shortAddress"]
+    latitude = station["lat"]
+    longitude = station["lon"]
     metrics["address"].labels(
-        station_id=station.externalId,
+        station_id=station_id,
         address=address,
-        latitude=station.coordinates.latitude,
-        longitude=station.coordinates.longitude,
-        street=station.address.streetAndNumber,
-        postal_code=station.address.postalCode,
-        city=station.address.city,
-        country=station.address.country,
+        latitude=latitude,
+        longitude=longitude,
     ).set(1)
     metrics["operator_name"].labels(
-        station_id=station.externalId,
+        station_id=station_id,
         address=address,
-        latitude=station.coordinates.latitude,
-        longitude=station.coordinates.longitude,
-        operator_name=station.operatorName,
+        latitude=latitude,
+        longitude=longitude,
+        operator_name=station["operator"],
     ).set(1)
-    metrics["station_exists"].labels(station_id=station.externalId).set(1)
-    for evse in station.evses:
+    metrics["station_exists"].labels(station_id=station_id).set(1)
+    for evse in station["chargePoints"]:
+        evse_id = evse["evseId"]
+        status = evse_status_map.get(evse["status"], "Unknown")
         metrics["evse_status"].labels(
-            station_id=station.externalId,
+            station_id=station_id,
             address=address,
-            latitude=station.coordinates.latitude,
-            longitude=station.coordinates.longitude,
-            evse_id=evse.externalId,
-        ).state(evse.status)
+            latitude=latitude,
+            longitude=longitude,
+            evse_id=evse_id,
+        ).state(status)
         metrics["evse_updated"].labels(
-            station_id=station.externalId,
+            station_id=station_id,
             address=address,
-            latitude=station.coordinates.latitude,
-            longitude=station.coordinates.longitude,
-            evse_id=evse.externalId,
-        ).set(iso_to_epoch(evse.updated))
-        for connector in evse.connectors:
-            for connector_property, attr_name in connector_properties.items():
-                value = getattr(connector.electricalProperties, attr_name)
-                if connector_property == "connector_power":
-                    value *= 1000
-                metrics[connector_property].labels(
-                    station_id=station.externalId,
-                    address=address,
-                    latitude=station.coordinates.latitude,
-                    longitude=station.coordinates.longitude,
-                    evse_id=evse.externalId,
-                    connector_id=connector.externalId,
-                ).set(value)
+            latitude=latitude,
+            longitude=longitude,
+            evse_id=evse_id,
+        ).set(evse["state"]["updatedAt"] / 1000)
+        for i, connector in enumerate(evse["connectors"]):
+            connector_id = str(i + 1)
+            metrics["connector_power"].labels(
+                station_id=station_id,
+                address=address,
+                latitude=latitude,
+                longitude=longitude,
+                evse_id=evse_id,
+                connector_id=connector_id,
+            ).set(connector["maxPowerInKw"] * 1000)
 
 
-async def run_metrics_loop(stations, interval):
+async def run_metrics_loop(stations, api_key, interval):
     async with ClientSession() as session:
-        api = Api(session)
         while True:
             for station_id in stations:
                 try:
-                    station = await api.location_by_id(station_id)
-                    if not station:
-                        logger.error("Error connecting with API")
-                        cooldown_period = randrange(30, 60)
-                        logger.info(
-                            f"Cooling down communication with API for {cooldown_period}s"
-                        )
-                        sleep(cooldown_period)
-                        continue
+                    station = await get_station(session, api_key, station_id)
                     set_metrics(station, True)
-                except (LocationEmptyError, LocationValidationError):
+                except StationNotFoundError:
                     set_metrics(station_id, False)
                 except (CancelledError, ClientError, TimeoutError) as err:
                     logger.error(

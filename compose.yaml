@@ -4,7 +4,8 @@ services:
     image: boosterl/can-i-charge:dev
     container_name: can-i-charge
     environment:
-      - STATIONS=BE-TCB-P104146 BE-TCB-P104151 BEALLEGO005188
+      - API_KEY=<your-api-key>
+      - STATIONS=471003
       - EXPORTER=true
       # - EXPORTER_PORT="9041"
       # - EXPORTER_INTERVAL="120"

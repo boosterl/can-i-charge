@@ -8,17 +8,18 @@ from prometheus_client import start_http_server
 @command()
 @option("-e", "--exporter", envvar="EXPORTER", is_flag=True)
 @option("-i", "--interval", envvar="EXPORTER_INTERVAL", type=int)
+@option("-k", "--api-key", envvar="API_KEY", required=True)
 @option("-p", "--port", envvar="EXPORTER_PORT", type=int)
 @option("-s", "--station", envvar="STATIONS", multiple=True)
 @option("-v", "--verbose", count=True)
 @version_option()
-def main(exporter, interval, port, station, verbose):
+def main(exporter, interval, api_key, port, station, verbose):
     if exporter:
         start_http_server(port if port else 9041)
-        metrics_loop = run_metrics_loop(station, interval if interval else 60)
+        metrics_loop = run_metrics_loop(station, api_key, interval if interval else 60)
         new_event_loop().run_until_complete(metrics_loop)
     else:
-        run(get_charging_status(station, verbose))
+        run(get_charging_status(station, api_key, verbose))
 
 
 if __name__ == "__main__":
