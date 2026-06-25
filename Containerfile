@@ -13,4 +13,4 @@ USER can-i-charge
 
 WORKDIR /
 
-CMD [ "can-i-charge" ]
+ENTRYPOINT [ "can-i-charge" ]
