@@ -44,7 +44,7 @@ $ cic
 
 You can pass as many stations as you want. At least one valid station is needed
 to return data. Station IDs are numeric and can be found via the
-[EnBW eMobility map](https://www.enbw.com/elektromobilitaet/produkte/laden/laden-unterwegs/ladestation-finden/).
+[EnBW eMobility map](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder).
 You can use the developer tools to find the ID and APIKEY, which is also
 needed.
 
