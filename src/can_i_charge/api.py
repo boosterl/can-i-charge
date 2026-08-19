@@ -1,5 +1,5 @@
 ENBW_API_URL = (
-    "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/{}"
+    "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations/{}"
 )
 
 
